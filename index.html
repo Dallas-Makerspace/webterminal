@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VCC CTF Challenge Server</title>
+    <link rel="stylesheet" href="https://unpkg.com/xterm@latest/dist/xterm.css" />
+    <link rel="stylesheet" href="https://unpkg.com/xterm@latest/dist/addons/fullscreen/fullscreen.css" />
+    <script src="https://unpkg.com/xterm@latest/dist/xterm.js"></script>
+    <script src="https://unpkg.com/xterm@latest/dist/addons/attach/attach.js"></script>
+    <script src="https://unpkg.com/xterm@latest/dist/addons/webLinks/webLinks.js"></script>
+    <script src="https://unpkg.com/xterm@latest/dist/addons/fit/fit.js"></script>
+    <script src="https://unpkg.com/xterm@latest/dist/addons/fullscreen/fullscreen.js"></script>
+    <script src="https://unpkg.com/xterm@latest/dist/addons/zmodem/zmodem.js"></script>
+    <script src="https://unpkg.com/xterm@latest/dist/addons/search/search.js"></script>
+    <style>
+      @font-face {
+        font-family: 'FantasqueSansMonoBold';
+        src: url(https://int10h.org/webfonts/webfonts/FantasqueSansMonoBold.eot); /* IE 9 Compatibility Mode */
+        src: url(https://int10h.org/webfonts/webfonts/FantasqueSansMonoBold.ttf) format('truetype'); /* Safari, Android, iOS */
+        font-weight: bold;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'FantasqueSansMonoRegular';
+        src: url(https://int10h.org/webfonts/webfonts/FantasqueSansMonoBold.eot); /* IE 9 Compatibility Mode */
+        src: url(https://int10h.org/webfonts/webfonts/FantasqueSansMonoRegular.ttf) format('truetype'); /* Safari, Android, iOS */
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'cp437';
+        src: url(https://int10h.org/webfonts//webfonts/vga_squarepx.eot);
+        src: url(https://int10h.org/webfonts//webfonts/vga_squarepx.eot?#iefix) format('embedded-opentype'),
+             url(https://int10h.org/webfonts//webfonts/vga_squarepx.woff2) format('woff2'),
+             url(https://int10h.org/webfonts//webfonts/vga_squarepx.woff) format('woff'),
+             url(https://int10h.org/webfonts//webfonts/vga_squarepx.ttf) format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      html, body {
+        background-color: black;
+        color: #fdf6e3;
+        font: 'cp437', 'FantasqueSansMonoRegular', 'Courier', monospace, serif;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="header">
+      <p>@Team_VCC CTF Challenge</p>
+    </div>
+    <div id="terminal"></div>
+    <footer>
+      <script type="text/javascript">
+        function setCookie(key, value) {
+        	document.cookie = key + "=" + value;
+        }
+
+        function getCookie(key) {
+        	return document.cookie.split(';').filter(
+          	(item) => item.trim().startsWith(key + '=')
+          );
+        }
+
+        function netOpen(socketUrl)  {
+        
+          // ensure traefik has:    `--defaultentrypoints=http,https,ws,wss`
+          
+          let protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+          let port = location.port ? `:${location.port}` : '';
+          const url = socketUrl || `${protocol}${location.hostname}${port}/shell`;
+         
+          return new WebSocket(url)     
+        }
+
+
+        setCookie('xtermrc.fitWidth', false)
+        setCookie('xtermrc.fullScreen', false)
+        
+        Terminal.applyAddon(attach)
+        Terminal.applyAddon(fit)
+        Terminal.applyAddon(fullscreen)
+        Terminal.applyAddon(search)
+        Terminal.applyAddon(webLinks)
+        //Terminal.applyAddon(zmodem);
+        
+        const term = new Terminal();
+              term.write('Hello from \x1B[1;3;31mTeam VCC\x1B[0m $ ')
+
+        // connect to websocket proxy and attach the socket to the terminal
+        const socket = netOpen('wss://proxy-us-ga.ftelnet.ca/bbs.dapla.net/23'); 
+              socket.onopen = (ev) => {
+              	term.open(document.querySelector('#terminal'))
+ 		            term.attach(socket); 
+                if (getCookie('xtermrc.fitWidth') == True) term.fit()
+                if (getCookie('xtermrc.fullScreen') == True) term.toggleFullScreen()
+              };
+
+      </script>
+    </footer>
+  </body>
+
+</html>
